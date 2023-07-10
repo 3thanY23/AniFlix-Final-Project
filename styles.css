@@ -62,9 +62,13 @@ input {
 .nav__left,
 .nav__right {
     display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: px;
 }
 
 .logo {
+    height: 75px;
     width: 150px;
 }
 
@@ -84,6 +88,7 @@ input {
     cursor: pointer;
     display: flex;
     align-items: center;
+    justify-content: center;
     padding-right: 30px;
 }
 
@@ -234,5 +239,55 @@ input {
 
     100% {
         transform: rotate(360deg);
+    }
+}
+
+/* Media Query */
+
+@media (max-width: 993px) {
+
+    .nav__link,
+    .profile__logo {
+        display: none;
+    }
+}
+
+
+
+@media (max-width: 768px) {
+
+    .banner,
+    .nav__link,
+    .logo,
+    .profile__logo {
+        display: none;
+    }
+
+    .row {
+        margin-top: 50px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .banner,
+    .nav__link,
+    .logo,
+    .profile__logo {
+        display: none;
+    }
+
+    .row {
+        margin-top: 50px;
+    }
+
+    .anime__list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    .anime {
+        width: 50%;
     }
 }

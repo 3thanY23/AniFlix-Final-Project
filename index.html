@@ -10,7 +10,7 @@
     </style>
     <link rel="stylesheet" href="styles.css" />
     <script src="https://kit.fontawesome.com/1256adce66.js" crossorigin="anonymous"></script>
-    <script type="module" src="app.js" defer></script>
+
 </head>
 
 <body>
@@ -18,7 +18,7 @@
     <section id="navigation">
         <div class="nav">
             <div class="nav__left">
-                <!-- <img class="logo" src=""> -->
+                <img class="logo" src="./assets/AniFlix.png">
                 <div class="nav__links">
                     <a class="nav__link" href="#">Home</a>
                     <a class="nav__link" href="#">Genres</a>
@@ -27,7 +27,7 @@
                 </div>
             </div>
             <div class="nav__right">
-                <input class="search__bar" type="text" placeholder="Search Anime..." onchange="searchFunction(event)">
+                <input class="search__bar" type="text" placeholder="Search Anime...">
                 <div class="profile__logo">
                     <i class="fa-solid fa-bell fa-xl" style="color: white"></i>
                 </div>
@@ -63,26 +63,27 @@
             <div class="results__container">
                 <div class="results__header">
                     <h1 class="search__results">Trending </h1>
-                    <select id="filter" onchange="filterAnime(event)">
+                    <select id="filter">
                         <option value="start" disabled selected>Sort</option>
-                        <option value="NEWEST-OLDEST">Newest to Oldest</option>
-                        <option value="OLDEST-NEWEST">Oldest to Newest</option>
+                        <option value="NEWEST-OLDEST">Newest</option>
+                        <option value="OLDEST-NEWEST">Oldest</option>
                     </select>
                 </div>
                 <div class="anime__list">
-                    <div class="anime">
+                    <!-- <div class="anime">
                         <figure class="anime__img--wrapper">
                             <img class="anime__img"
-                                src="https://static.bunnycdn.ru/i/cache/images/4/43/43325d79a9b3c8d66675c64a69e7d858.jpg"
+                                src="./assets/OnePieceCover.jpeg"
                                 alt="">
                         </figure>
                         <h2 class="anime__title">One Piece</h2>
                         <p class="anime__year">1999</p>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
     </section>
+    <script type="module" src="app.js"></script>
 </body>
 
 </html>

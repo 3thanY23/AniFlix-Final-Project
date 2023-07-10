@@ -1,48 +1,62 @@
+const apiUrl = "https://graphql.anilist.co";
+const headers = {
+  "Content-Type": "application/json",
+};
 
-
-let trendingID = ["1", "2", "3", "4", "5", "6", "7", "8"];
 const animeWrapper = document.querySelector(".anime__list");
 let isTrending = true;
+const trendingID = [
+  "20",
+  "21",
+  "113415",
+  "128893",
+  "136",
+  "1",
+  "16498",
+  "127230",
+];
 
-async function renderTrending() {
-  let trendingArr = [];
+async function makeGraphQLRequest(query, variables) {
+  const response = await fetch(apiUrl, {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify({
+      query: query,
+      variables: variables,
+    }),
+  });
 
-  for (let currentPage = 1; currentPage <= 5; currentPage++) {
-    const response = await fetch("https://graphql.anilist.co", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
-          query ($page: Int, $perPage: Int) {
-            Page(page: $page, perPage: $perPage) {
-              media {
-                id
-                title {
-                  english
-                  romaji
-                }
-                coverImage {
-                  large
-                }
-                startDate {
-                  year
-                }
-              }
-            }
+  const data = (await response.json()).data;
+  return data;
+}
+
+async function fetchTrendingAnime() {
+  const query = `
+    query ($ids: [Int]) {
+      Page(page: 1, perPage: 8) {
+        media(id_in: $ids) {
+          id
+          title {
+            english
+            romaji
           }
-        `,
-        variables: {
-          page: currentPage,
-          perPage: 16,
-        },
-      }),
-    });
+          coverImage {
+            large
+          }
+          startDate {
+            year
+          }
+        }
+      }
+    }
+  `;
 
-    const data = (await response.json()).data.Page.media;
-    trendingArr = trendingArr.concat(data);
-  }
+  const variables = {
+    ids: trendingID.map(Number),
+  };
+
+  const data = await makeGraphQLRequest(query, variables);
+  const trendingArr = data.Page.media;
 
   animeWrapper.innerHTML = trendingArr
     .map((anime) => animeHTML(anime, isTrending))
@@ -52,61 +66,50 @@ async function renderTrending() {
 async function renderAnime(search = "", filter) {
   document.getElementById("filter").style.display = "block";
   animeWrapper.innerHTML = '<i class="fa-solid fa-spinner spinner"></i>';
-  animeWrapper.classList += " loading";
+  animeWrapper.classList.add("loading");
 
   if (!!search) {
-    const response = await fetch("https://graphql.anilist.co", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
-          query ($search: String) {
-            Page {
-              media(search: $search, type: ANIME) {
-                id
-                title {
-                  english
-                  romaji
-                }
-                startDate {
-                  year
-                }
-                coverImage {
-                  large
-                }
-              }
+    const query = `
+      query ($search: String) {
+        Page {
+          media(search: $search, type: ANIME) {
+            id
+            title {
+              english
+              romaji
+            }
+            startDate {
+              year
+            }
+            coverImage {
+              large
             }
           }
-        `,
-        variables: {
-          search: search,
-        },
-      }),
-    });
+        }
+      }
+    `;
 
-    const data = (await response.json()).data.Page.media.slice(0, 8);
-    console.log(data);
+    const variables = {
+      search: search,
+    };
+
+    const data = await makeGraphQLRequest(query, variables);
+    const animeData = data.Page.media.slice(0, 8);
 
     if (filter === "OLDEST-NEWEST") {
-      data.sort((a, b) => a.startDate.year - b.startDate.year);
+      animeData.sort((a, b) => a.startDate.year - b.startDate.year);
     } else if (filter === "NEWEST-OLDEST") {
-      data.sort((a, b) => b.startDate.year - a.startDate.year);
+      animeData.sort((a, b) => b.startDate.year - a.startDate.year);
     }
 
     setTimeout(() => {
       animeWrapper.classList.remove("loading");
-      animeWrapper.innerHTML = data
+      animeWrapper.innerHTML = animeData
         .map((anime) => animeHTML(anime, (isTrending = false)))
         .join("");
     }, 250);
   }
 }
-
-setTimeout(() => {
-  renderTrending();
-}, 10);
 
 function animeHTML(anime) {
   const startYear = anime.startDate ? anime.startDate.year : "N/A";
@@ -122,18 +125,28 @@ function animeHTML(anime) {
         </div>`;
 }
 
-function searchFunction(event) {
-  document.getElementById("filter").selectedIndex = "0";
-  document.querySelector(
-    ".search__results"
-  ).innerHTML = `Search Results: ${event.target.value}`;
-  renderAnimes(event.target.value);
-}
+document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.querySelector(".search__bar");
+  const filterSelect = document.getElementById("filter");
 
-document
-  .querySelector(".search__bar")
-  .addEventListener("keypress", function (e) {
+  searchInput.addEventListener("change", (event) => {
+    document.querySelector(".search__results").innerHTML =
+      "Search Results: " + event.target.value;
+    renderAnime(event.target.value, filterSelect.value);
+  });
+
+  searchInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
       document.activeElement.blur();
     }
   });
+
+  filterSelect.addEventListener("change", (event) => {
+    const searchValue = searchInput.value;
+    renderAnime(searchValue, event.target.value);
+  });
+
+  setTimeout(() => {
+    fetchTrendingAnime();
+  }, 10);
+});
